@@ -3,7 +3,7 @@
     <!-- 顶部导航区域 -->
     <van-nav-bar title="标题" />
     <!-- 表单区域 -->
-    <van-form @submit="onSubmit" class="loginForm">
+    <van-form @submit="onSubmit" class="loginForm" ref="loginForm">
       <van-field
         v-model="loginForm.mobile"
         name="mobile"
@@ -24,6 +24,26 @@
         <template #label>
           <i class="toutiao toutiao-yanzhengma"></i>
         </template>
+        <!-- 使用插槽指定输入框后面的验证码按钮 -->
+        <template #button>
+          <!--  native-type="button" 阻止点击验证码按钮时提交表单 -->
+          <van-button
+            type="default"
+            class="codeBtn"
+            size="mini"
+            round
+            v-if="isShow"
+            native-type="button"
+            @click="getCode"
+            >获取验证码</van-button
+          >
+          <van-count-down
+            :time="3 * 1000"
+            format="ss秒"
+            v-else
+            @finish="isShow = !isShow"
+          />
+        </template>
       </van-field>
       <div class="submitBox">
         <van-button round block type="info" native-type="submit"
@@ -37,7 +57,8 @@
 <script>
 // 导入表单校验规则
 import { codeRules, mobileRules } from './rules'
-import { login } from '@/api/user'
+import { loginAPI, getCodeAPI } from '@/api'
+
 export default {
   data() {
     return {
@@ -47,16 +68,33 @@ export default {
         code: ''
       },
       // 校验规则
-      rules: { codeRules, mobileRules }
+      rules: { codeRules, mobileRules },
+      // 验证码按钮是否显示
+      isShow: true
     }
   },
   methods: {
+    // 加载等待
+    loading() {
+      this.$toast.loading({
+        duration: 0,
+        forbidClick: true,
+        message: '登陆中...'
+      })
+    },
     // 表单校验通过时调用
     async onSubmit() {
+      this.loading()
       try {
-        const res = await login(this.loginForm)
+        const {
+          data: { data }
+        } = await loginAPI(this.loginForm)
+        // 将 token 保存到 Vuex 中
+        this.$store.commit('SET_TOKEN', data)
+        this.$router.push('/profile')
+
+        // 页面跳转
         this.$toast.success('登陆成功!')
-        console.log(res)
       } catch (error) {
         // 错误细分
         let message = '请重新登录'
@@ -65,6 +103,29 @@ export default {
         }
         this.$toast.fail(message)
       }
+    },
+    // 获取验证码
+    getCode() {
+      // 1.验证手机号
+      this.$refs.loginForm
+        .validate('mobile')
+        .then(async () => {
+          this.loading()
+          try {
+            // 2.发送请求
+            await getCodeAPI(this.loginForm.mobile)
+            this.$toast.success('获取验证码成功')
+            // 显示倒计时
+            this.isShow = !this.isShow
+          } catch (error) {
+            // let message = '手机号码不正确'
+            // if (error.response.status === 429) {
+            //   message = error.response.data.message
+            // }
+            return this.$toast.fail(error.response.data.message)
+          }
+        })
+        .catch((err) => err)
     }
   }
 }
@@ -94,5 +155,11 @@ export default {
   .submitBox {
     margin: 32px;
   }
+}
+// 验证码按钮
+.codeBtn {
+  background-color: #eeeeee;
+  color: #a9929b;
+  padding: 0 0.2rem;
 }
 </style>

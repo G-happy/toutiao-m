@@ -14,6 +14,5 @@ module.exports = {
     'eol-last': 'off',
     'vue/multi-word-component-names': 'off',
     'space-before-function-paren': 'off'
-    // indent: ['error', 2]
   }
 }
