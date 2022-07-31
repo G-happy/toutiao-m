@@ -6,8 +6,29 @@ Vue.use(VueRouter)
 // 路由懒加载,提升首屏加载速度
 const router = new VueRouter({
   routes: [
-    { path: '/', redirect: '/login' },
-    { path: '/login', component: () => import('@/views/login') }
+    { path: '/login', component: () => import('@/views/login') },
+    {
+      path: '/',
+      component: () => import('@/views/layout'),
+      children: [
+        {
+          path: 'profile',
+          component: () => import('@/views/Profile/profile.vue')
+        },
+        {
+          path: 'qa',
+          component: () => import('@/views/Qa/qa.vue')
+        },
+        {
+          path: '/ ',
+          component: () => import('@/views/Home/home')
+        },
+        {
+          path: 'video',
+          component: () => import('@/views/Video/video')
+        }
+      ]
+    }
   ]
 })
 
