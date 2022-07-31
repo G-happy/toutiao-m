@@ -10,6 +10,7 @@ const router = new VueRouter({
     {
       path: '/',
       component: () => import('@/views/layout'),
+      redirect: '/ ',
       children: [
         {
           path: 'profile',
