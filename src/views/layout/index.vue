@@ -32,9 +32,7 @@ export default {
     }
   },
   methods: {
-    onChange(active) {
-      console.log(active)
-    }
+    onChange(active) {}
   }
 }
 </script>
