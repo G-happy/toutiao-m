@@ -35,7 +35,6 @@ export default {
     async getChannels() {
       try {
         const { data } = await channelsAPI()
-        // console.log(data)
         this.channelsList = data.data.channels
       } catch (error) {
         console.log(error)
@@ -49,6 +48,10 @@ export default {
 
 <style scoped lang="less">
 :deep(.navbar) {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  left: 0;
   background-color: #3296fa;
   .search-btn {
     width: 7.4rem;
@@ -74,7 +77,10 @@ export default {
 /* tabs导航条样式 */
 :deep(.van-tabs__wrap) {
   padding-right: 66px;
-
+  position: sticky;
+  top: 92px;
+  left: 0;
+  z-index: 99;
   .van-tabs__nav {
     padding-left: 0;
     padding-right: 0;
@@ -108,6 +114,9 @@ export default {
   text-align: center;
   opacity: 0.6;
   border-bottom: 1px solid #eee;
+  position: fixed;
+  top: 92px;
+  right: 0;
 
   &::after {
     content: '';
@@ -119,5 +128,13 @@ export default {
     width: 1px;
     background-image: url('~@/assets/images/gradient-gray-line.png');
   }
+}
+:deep(.van-tabs__content) {
+  max-height: calc(100vh - 92px - 88px - 100px);
+  // padding-bottom: 100px;
+  overflow: auto;
+}
+:deep(.van-tabs) {
+  height: calc(100vh - 92px - 88px - 100px);
 }
 </style>
