@@ -11,20 +11,38 @@
       <van-tab :title="item.name" v-for="item in channelsList" :key="item.id">
         <ArticlesList :id="item.id"></ArticlesList>
       </van-tab>
-      <span class="toutiao toutiao-gengduo1"></span>
+      <span class="toutiao toutiao-gengduo1" @click="showPopup"></span>
     </van-tabs>
+    <!-- 频道弹层 -->
+    <van-popup
+      v-model="show"
+      position="bottom"
+      :style="{ height: '98%' }"
+      closeable
+      close-icon-position="top-left"
+    >
+      <channelPopup
+        :channelsList="channelsList"
+        @close="show = false"
+        @change-active="active = $event"
+        @del-channel="delChannel"
+      ></channelPopup>
+    </van-popup>
   </div>
 </template>
 
 <script>
-import { channelsAPI } from '@/api'
+import { channelsAPI, deleteChannelAPI } from '@/api'
 import ArticlesList from './components/ArticlesList.vue'
+import channelPopup from './components/channelPopup.vue'
 export default {
   name: 'Home',
   data() {
     return {
       active: 0,
-      channelsList: []
+      channelsList: [],
+      // 频道弹出层是否展示
+      show: false
     }
   },
   created() {
@@ -40,9 +58,18 @@ export default {
         console.log(error)
         this.$toast.fail('获取频道失败,请刷新')
       }
+    },
+    // 删除频道
+    async delChannel(id) {
+      const { data } = await deleteChannelAPI(id)
+      console.log(data)
+      this.channelsList = this.channelsList.filter((item) => item.id !== id)
+    },
+    showPopup() {
+      this.show = true
     }
   },
-  components: { ArticlesList }
+  components: { ArticlesList, channelPopup }
 }
 </script>
 
@@ -117,6 +144,7 @@ export default {
   position: fixed;
   top: 92px;
   right: 0;
+  z-index: 999;
 
   &::after {
     content: '';
