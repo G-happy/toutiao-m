@@ -11,7 +11,7 @@
       <van-tab :title="item.name" v-for="item in channelsList" :key="item.id">
         <ArticlesList :id="item.id"></ArticlesList>
       </van-tab>
-      <span class="toutiao toutiao-gengduo1" @click="showPopup"></span>
+      <span class="toutiao toutiao-gengduo1" @click="show = true"></span>
     </van-tabs>
     <!-- 频道弹层 -->
     <van-popup
@@ -26,13 +26,20 @@
         @close="show = false"
         @change-active="active = $event"
         @del-channel="delChannel"
+        @add-channel="addChannel"
       ></channelPopup>
     </van-popup>
   </div>
 </template>
 
 <script>
-import { channelsAPI, deleteChannelAPI } from '@/api'
+import {
+  channelsAPI,
+  deleteChannelAPI,
+  addChannelAPI,
+  setLocalChannels,
+  getLocalChannels
+} from '@/api'
 import ArticlesList from './components/ArticlesList.vue'
 import channelPopup from './components/channelPopup.vue'
 export default {
@@ -45,10 +52,31 @@ export default {
       show: false
     }
   },
+  computed: {
+    // 标识用户是否登录
+    isLogin() {
+      return !!this.$store.state.tokenObj.token
+    }
+  },
   created() {
     this.getChannels()
   },
   methods: {
+    // 初始化 channelsList
+    initChannelsList() {
+      if (this.isLogin) {
+        this.getChannels()
+      } else {
+        // 未登录
+        if (getLocalChannels()) {
+          // 本地存储有数据
+          this.channelsList = getLocalChannels()
+        } else {
+          // 本地存储没有数据
+          this.getChannels()
+        }
+      }
+    },
     // 获取导航条频道信息
     async getChannels() {
       try {
@@ -61,12 +89,47 @@ export default {
     },
     // 删除频道
     async delChannel(id) {
-      const { data } = await deleteChannelAPI(id)
-      console.log(data)
-      this.channelsList = this.channelsList.filter((item) => item.id !== id)
+      this.$toast.loading({
+        message: '加载中...',
+        forbidClick: true
+      })
+      try {
+        const newArr = this.channelsList.filter((item) => item.id !== id)
+        if (this.isLogin) {
+          // 删除服务器的数据
+          await deleteChannelAPI(id)
+        } else {
+          setLocalChannels(newArr)
+        }
+
+        // 删除视图上的数据
+        this.channelsList = newArr
+        this.$toast.success('删除频道成功~')
+      } catch (error) {
+        this.$toast.fail('删除频道失败~')
+      }
     },
-    showPopup() {
-      this.show = true
+    // 添加频道
+    async addChannel(item) {
+      this.$toast.loading({
+        message: '加载中...',
+        forbidClick: true
+      })
+      try {
+        if (this.isLogin) {
+          await addChannelAPI({
+            id: item.id,
+            seq: this.channelsList.length
+          })
+        } else {
+          setLocalChannels([...this.channelsList, item])
+        }
+
+        this.channelsList.push(item)
+        this.$toast.success('添加频道成功~')
+      } catch (error) {
+        this.$toast.fail('添加频道失败~')
+      }
     }
   },
   components: { ArticlesList, channelPopup }

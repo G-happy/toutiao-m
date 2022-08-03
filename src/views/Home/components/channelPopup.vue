@@ -25,6 +25,7 @@
         v-for="item in newChannelList"
         :key="item.id"
         :text="item.name"
+        @click="$emit('add-channel', item)"
       />
     </van-grid>
   </div>
