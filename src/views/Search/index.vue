@@ -9,8 +9,8 @@
         background="#3296fa"
         placeholder="请输入搜索关键词"
         @search="onSearch"
-        @cancel="$toast.fail('已取消')"
         @focus="onFocus"
+        @cancel="$router.back()"
       />
     </form>
     <!-- 搜索历史/搜索建议/搜索结果 -->
