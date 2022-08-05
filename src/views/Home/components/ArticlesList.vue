@@ -30,6 +30,7 @@ import { getNewsListAPI } from '@/api'
 import ArticleItem from '@/components/ArticleItem.vue'
 export default {
   name: 'ArticleList',
+  // 接收 home 组件传递过来的数据
   props: {
     id: {
       type: [String, Number],
@@ -86,8 +87,10 @@ export default {
         this.pre_timestamp = data.pre_timestamp
         // 4.保存数据信息
         if (this.LoadingJudgment.refreshing) {
+          // 下拉刷新
           this.firstPageArticlesList.unshift(...data.results)
         } else {
+          // 上滑刷新
           this.firstPageArticlesList.push(...data.results)
         }
       } catch (error) {

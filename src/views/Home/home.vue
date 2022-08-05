@@ -9,6 +9,7 @@
     <!-- 导航区域 -->
     <van-tabs v-model="active" swipeable>
       <van-tab :title="item.name" v-for="item in channelsList" :key="item.id">
+        <!-- 向 ArticlesList 组件传递 id  -->
         <ArticlesList :id="item.id"></ArticlesList>
       </van-tab>
       <span class="toutiao toutiao-gengduo1" @click="show = true"></span>
