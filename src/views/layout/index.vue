@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="box">
     <!-- 二级路由 -->
     <router-view></router-view>
     <!-- 底部导航 -->
@@ -38,6 +38,11 @@ export default {
 </script>
 
 <style scoped lang="less">
+.box {
+  width: 100%;
+  height: 100vh;
+  background-color: #f5f7f9;
+}
 :deep(.van-tabbar-item__icon) {
   display: flex;
   flex-direction: column;

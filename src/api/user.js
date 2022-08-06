@@ -56,3 +56,11 @@ export const uploadAvatorAPI = (file) => {
     data: fd
   })
 }
+
+export const editUserInfoAPI = (data) => {
+  return request({
+    url: '/v1_0/user/profile',
+    method: 'PATCH',
+    data: data
+  })
+}
