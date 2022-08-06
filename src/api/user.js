@@ -26,3 +26,33 @@ export const getCodeAPI = (mobile) => {
     url: `/v1_0/sms/codes/${mobile}`
   })
 }
+
+/**
+ * 获取用户信息
+ * @returns  Promise
+ */
+export const getUserInfoAPI = () => {
+  return request({
+    url: '/v1_0/user/profile'
+  })
+}
+
+// 如果传的是对象,axios默认将对象转化成JSON,并加上content-type=application/json
+// 如果传的是formData表单,那么axios会将变淡提交给后端,默认加上content-type=mutipart/form-data
+// 这个接口要的是表单
+/**
+ * 修改用户头像
+ * @param {Object} file 需上传的文件对象
+ * @returns Promise
+ */
+export const uploadAvatorAPI = (file) => {
+  // 创建表单
+  const fd = new FormData()
+  // 添加数据(key,vlaue)
+  fd.append('photo', file)
+  return request({
+    url: '/v1_0/user/photo',
+    method: 'PATCH',
+    data: fd
+  })
+}
