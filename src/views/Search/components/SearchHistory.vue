@@ -27,7 +27,6 @@
 </template>
 
 <script>
-// import { getSearchResultAPI } from '@/api'
 export default {
   data() {
     return {

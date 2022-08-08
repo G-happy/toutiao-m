@@ -54,13 +54,16 @@ export default {
   methods: {
     // 获取搜索结果
     async getSearchResult() {
-      this.query.q = this.keywords
-      const {
-        data: { data }
-      } = await getSearchResultAPI(this.query)
-      this.total = data.total_count
-      this.searchResList.push(...data.results)
-      console.log(data)
+      try {
+        this.query.q = this.keywords
+        const {
+          data: { data }
+        } = await getSearchResultAPI(this.query)
+        this.total = data.total_count
+        this.searchResList.push(...data.results)
+      } catch (error) {
+        this.$toast.fail('搜索信息失败,请重新搜索~')
+      }
     },
     // 滚动加载
     async onLoad() {
