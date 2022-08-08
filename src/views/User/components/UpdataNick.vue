@@ -44,17 +44,28 @@ export default {
     // 昵称 --点击取消按钮
     onClickLeft() {
       // 数据回显
-      this.nickname = this.$parent.$parent.userInfo.name
+      this.nickname = this.name
       // 关闭弹窗
-      this.$parent.$parent.isShowNick = false
+      // this.$parent.$parent.isShowNick = false
+      this.$emit('changeIsShowNick')
     },
     // 昵称 --点击确认按钮
     async onClickRight() {
-      // this.$emit('edit-nick', this.nickname)
-      this.$parent.$parent.userObj.name = this.nickname
+      if (this.nickname === this.name) {
+        this.$emit('changeIsShowNick')
+        return
+      }
+      // this.$parent.$parent.userObj.name = this.nickname
+      this.$emit('nickName', this.nickname)
+
       await editUserInfoAPI(this.userObj)
-      this.$parent.$parent.getUserInfo()
-      this.$parent.$parent.isShowNick = false
+
+      // this.$parent.$parent.getUserInfo()
+      this.$emit('initUserInfo')
+
+      // 关闭弹窗
+      // this.$parent.$parent.isShowNick = false
+      this.$emit('changeIsShowNick')
     }
   }
 }

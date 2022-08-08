@@ -49,7 +49,13 @@
       :style="{ height: '100%' }"
     >
       <!-- 弹出层内部表单组件 -->
-      <UpdataNick :name="userInfo.name" :userObj="userObj"></UpdataNick>
+      <UpdataNick
+        :name="userInfo.name"
+        :userObj="userObj"
+        @changeIsShowNick="isShowNick = false"
+        @nickName="changeNickName"
+        @initUserInfo="getUserInfo()"
+      ></UpdataNick>
     </van-popup>
     <!-- 性别 -->
     <van-cell is-link title="性别" @click="isShowGender = true">
@@ -162,8 +168,10 @@ export default {
       // 展示弹出层
       this.isShowPhoto = true
     },
-    // 昵称 --
-
+    // 昵称 --确认按钮
+    changeNickName(nickname) {
+      this.userObj.name = nickname
+    },
     // 性别 --确认按钮
     async onConfirmGender(value) {
       // 转换

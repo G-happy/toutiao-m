@@ -11,3 +11,15 @@ export const getSearchSuggestAPI = (q) => {
     params: { q }
   })
 }
+
+/**
+ * 搜索结果
+ * @param {Object} params 请求相关信息配置
+ * @returns Promise
+ */
+export const getSearchResultAPI = (params) => {
+  return request({
+    url: '/v1_0/search',
+    params: params
+  })
+}

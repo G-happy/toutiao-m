@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 搜索框 -->
-    <form action="/">
+    <form action="/" class="formBar">
       <van-search
         class="search"
         v-model.trim="keywords"
@@ -15,7 +15,11 @@
     </form>
     <!-- 搜索历史/搜索建议/搜索结果 -->
     <!-- component 动态渲染多个组件中的某个,is='' 指定渲染哪个组件 -->
-    <component :is="componentsName" :keywords="keywords"></component>
+    <component
+      :is="componentsName"
+      :keywords="keywords"
+      class="main"
+    ></component>
   </div>
 </template>
 
@@ -28,8 +32,17 @@ export default {
   data() {
     return {
       keywords: '',
-      isShowSearchRes: false
+      isShowSearchRes: false,
+      // 本地存储历史搜索记录
+      arr: JSON.parse(localStorage.getItem('keywordsList')) || []
     }
+  },
+  created() {
+    this.$bus.$on('res', (item) => {
+      this.keywords = item
+      this.isShowSearchRes = true
+      this.tidySearchHistory(item)
+    })
   },
   methods: {
     // 确认搜索
@@ -37,6 +50,16 @@ export default {
       if (this.keywords !== '') {
         this.isShowSearchRes = true
       }
+      const item = this.keywords
+      this.tidySearchHistory(item)
+    },
+    // 处理搜索历史记录,本地存储
+    tidySearchHistory(item) {
+      this.arr.unshift(item)
+      // 去重
+      this.arr = [...new Set(this.arr)]
+      // 本地存储历史搜索记录
+      localStorage.setItem('keywordsList', JSON.stringify(this.arr))
     },
     // 输入框聚焦
     async onFocus() {
@@ -66,6 +89,20 @@ export default {
 :deep(.search) {
   [role='button'] {
     color: #fff;
+  }
+}
+:deep(.formBar) {
+  position: fixed;
+  top: 0;
+  z-index: 99;
+  width: 100%;
+}
+:deep(.main) {
+  margin-top: 108px !important;
+
+  .van-list {
+    max-height: calc(100vh - 108px);
+    overflow: auto;
   }
 }
 </style>
