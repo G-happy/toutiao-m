@@ -1,18 +1,30 @@
 <template>
+  <!-- 对评论进行回复组件 -->
   <div>
     <div class="nav-top">
-      <van-nav-bar title="n条回复" left-arrow @click-left="onClickLeft" />
+      <van-nav-bar
+        :title="CommentList.length + '条回复'"
+        left-arrow
+        @click-left="onClickLeft"
+      />
     </div>
+    <!-- 内容组件 -->
     <div class="main">
-      <commentItem2></commentItem2>
+      <!-- 楼主评论 -->
+      <commentItem :article="article" :disabled="'disabled'"></commentItem>
       <van-cell title="全部回复" />
+      <!-- 楼下评论 -->
       <van-list>
-        <commentItem2></commentItem2>
-        <commentItem2></commentItem2>
-        <commentItem2></commentItem2>
-        <commentItem2></commentItem2>
+        <commentItem
+          v-for="article in CommentList"
+          :key="article.com_id"
+          :article="article"
+          :disabled="'disabled'"
+          @initComment="ss"
+        ></commentItem>
       </van-list>
     </div>
+    <!-- 底部按钮,点击输入回复内容 -->
     <div class="btn-box">
       <van-button round type="default" @click="show = true">评论</van-button>
       <!-- 弹出层 -->
@@ -40,24 +52,63 @@
 </template>
 
 <script>
+import { sendCommentAPI, getCommentAPI } from '@/api'
 export default {
   name: 'ReplyToComments',
-  components: { commentItem2: () => import('./commentItem2.0.vue') },
+  components: { commentItem: () => import('./commentItem.vue') },
+  props: {
+    article: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   data() {
     return {
       // 控制评论输入框弹层
       show: false,
       // 输入框绑定的内容
-      commentValue: ''
+      commentValue: '',
+      // 回复 -- 楼下评论
+      CommentList: []
     }
+  },
+  created() {
+    this.getSecondComment()
   },
   methods: {
     onClickLeft() {
       // 关闭弹窗
       this.$parent.$parent.isShowReply = false
     },
-    // 对用户发布评论
-    sendComment() {}
+    // 回复 -- 获取评论
+    async getSecondComment() {
+      const {
+        data: {
+          data: { results }
+        }
+      } = await getCommentAPI({
+        type: 'c',
+        source: this.article.com_id,
+        offset: '',
+        limit: ''
+      })
+      this.CommentList = results
+    },
+    // 回复 -- 发布评论
+    async sendComment() {
+      // console.log(this.$route.query.article_id)
+      await sendCommentAPI({
+        target: this.article.com_id,
+        content: this.commentValue,
+        art_id: this.$route.query.article_id
+      })
+      this.show = false
+      this.commentValue = ''
+      this.getSecondComment()
+    },
+    ss() {
+      this.getSecondComment()
+    }
   }
 }
 </script>
@@ -80,6 +131,8 @@ export default {
 }
 // 按钮
 .btn-box {
+  position: fixed;
+  bottom: 0;
   width: 94%;
   padding: 10px 20px;
   background-color: #2589ff;

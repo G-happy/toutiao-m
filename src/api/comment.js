@@ -24,3 +24,30 @@ export const getCommentAPI = (params) => {
     params
   })
 }
+
+/**
+ * 对评论点赞
+ * @param {String} comId 被点赞的评论id
+ * @returns Promise
+ */
+export const likingsAPI = (comId) => {
+  return request({
+    url: '/v1_0/comment/likings',
+    method: 'POST',
+    data: {
+      target: comId
+    }
+  })
+}
+
+/**
+ * 对评论取消点赞
+ * @param {String} comId  被取消点赞的评论id
+ * @returns Promise
+ */
+export const noLikeingAPI = (comId) => {
+  return request({
+    url: `/v1_0/comment/likings/${comId}`,
+    method: 'DELETE'
+  })
+}

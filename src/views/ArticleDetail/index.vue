@@ -59,7 +59,7 @@
         ></div>
         <van-divider>正文结束</van-divider>
         <!-- 评论区 -->
-        <comment></comment>
+        <comment ref="commentRef"></comment>
       </div>
       <!-- /加载完成-文章详情 -->
     </div>
@@ -157,13 +157,7 @@ export default {
       // 控制评论输入框弹层
       show: false,
       // 输入框绑定的内容
-      commentValue: '',
-      // 文章评论信息配置对象
-      artComment: {
-        target: '',
-        content: '',
-        art_id: 0
-      }
+      commentValue: ''
     }
   },
   mounted() {
@@ -251,11 +245,16 @@ export default {
         this.getArticleDetail()
       }
     },
-    // 发布评论
+    // 文章 -- 发布评论
     async sendComment() {
-      this.artComment.target = this.art_id
-      this.artComment.content = this.commentValue
-      await sendCommentAPI(this.artComment)
+      await sendCommentAPI({
+        target: this.art_id,
+        content: this.commentValue
+      })
+      // 调用子组件方法,重新获取评论区内容
+      this.$refs.commentRef.getComments()
+      this.commentValue = ''
+      // 关闭弹窗
       this.show = false
     }
   }

@@ -1,4 +1,5 @@
 <template>
+  <!-- 评论文章的用户模块 -->
   <div>
     <div class="userComment">
       <!-- 左侧头像 -->
@@ -11,10 +12,22 @@
         <div class="right-top">
           <p>{{ article.aut_name }}</p>
           <span>
-            <!-- 点赞 -->
-            <van-icon name="good-job"> 赞</van-icon>
             <!-- 未点赞 -->
-            <!-- <van-icon name="good-job-o" /> -->
+            <van-icon
+              name="good-job-o"
+              @click="isLikeFn('赞')"
+              v-show="!this.article.is_liking"
+              >赞</van-icon
+            >
+            <!-- 已点赞 -->
+            <van-icon
+              name="good-job"
+              color="orange"
+              @click="isLikeFn('.')"
+              v-show="this.article.is_liking"
+            >
+              赞</van-icon
+            >
           </span>
         </div>
         <!-- 评论内容 -->
@@ -26,7 +39,7 @@
         <!-- 发布时间和回复 -->
         <div class="right-bottom">
           <span class="time">{{ article.pubdate }}</span>
-          <button @click="showReplyFn">回复</button>
+          <button @click="isShowReply = true" :disabled="disabled">回复</button>
           <!-- 回复的弹出层 -->
           <van-popup
             v-model="isShowReply"
@@ -34,7 +47,7 @@
             :style="{ height: '100%' }"
           >
             <!-- 内容组件 -->
-            <ReplyToComments></ReplyToComments>
+            <ReplyToComments :article="article"></ReplyToComments>
           </van-popup>
         </div>
       </div>
@@ -44,6 +57,7 @@
 
 <script>
 import ReplyToComments from './ReplyToComments.vue'
+import { likingsAPI, noLikeingAPI } from '@/api'
 export default {
   name: 'commentItem',
   components: { ReplyToComments },
@@ -51,19 +65,35 @@ export default {
     article: {
       type: Object,
       default: () => ({})
+    },
+    num: {
+      type: Number
+    },
+    disabled: {
+      type: String
     }
   },
+  created() {},
   data() {
     return {
       // 控制回复弹层出现
-      isShowReply: false,
-      // 控制楼主里面的回复按钮不可点击
-      num: 1
+      isShowReply: false
     }
   },
   methods: {
-    showReplyFn() {
-      this.isShowReply = true
+    // 文章/回复 -- 点赞 / 取消点赞
+    async isLikeFn(str) {
+      try {
+        if (str === '赞') {
+          await likingsAPI(this.article.com_id)
+        } else {
+          await noLikeingAPI(this.article.com_id)
+        }
+      } catch (error) {
+        this.$toast.fail('获取评论失败,无法点赞或取消~')
+      } finally {
+        this.$emit('initComment')
+      }
     }
   }
 }
