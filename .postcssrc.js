@@ -13,7 +13,8 @@ module.exports = {
       // },
       rootValue: ({ file }) => (/vant/i.test(file) ? 37.5 : 75),
       // 哪些属性需要转化为 rem
-      propList: ['*']
+      propList: ['*'],
+      exclude: 'github-markdown'
     }
   }
 }

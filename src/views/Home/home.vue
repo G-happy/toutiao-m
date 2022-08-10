@@ -8,7 +8,7 @@
           round
           icon="search"
           @click="$router.push('/search')"
-          >默认按钮</van-button
+          >开始搜索</van-button
         >
       </template>
     </van-nav-bar>

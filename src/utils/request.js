@@ -5,7 +5,7 @@ const request = axios.create({
   // 统一设置根路径
   // baseURL: 'http://ttapi.research.itcast.cn/'
   baseURL: 'http://toutiao.itheima.net',
-  timeout: 3000
+  timeout: 3000000000
 })
 // 添加请求拦截器
 request.interceptors.request.use(

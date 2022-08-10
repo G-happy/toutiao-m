@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 顶部导航区域 -->
-    <van-nav-bar title="标题" />
+    <van-nav-bar title="登录" />
     <!-- 表单区域 -->
     <van-form @submit="onSubmit" class="loginForm" ref="loginForm">
       <van-field

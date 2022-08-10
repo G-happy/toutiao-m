@@ -15,10 +15,12 @@
         :error.sync="LoadingJudgment.error"
         error-text="请求失败，点击重新加载~"
       >
+        <!-- 每篇文章组件 -->
         <ArticleItem
           v-for="item in firstPageArticlesList"
           :key="item.art_id"
           :articleInfo="item"
+          @click.native="toDetailFn(item.art_id)"
         ></ArticleItem>
       </van-list>
     </van-pull-refresh>
@@ -60,6 +62,7 @@ export default {
     this.getFirstPageArticlesList()
   },
   methods: {
+    // 文章列表 - 第一次获取文章
     async getFirstPageArticlesList() {
       try {
         const {
@@ -71,7 +74,7 @@ export default {
         this.$toast.fail('获取文章失败,请刷新~')
       }
     },
-    // 获取下一页数据
+    // 文章列表 - 获取下一页数据
     async getNextPageArticle() {
       try {
         // 1.发送请求
@@ -100,6 +103,13 @@ export default {
         this.LoadingJudgment.loading = false
         this.LoadingJudgment.refreshing = false
       }
+    },
+    // 文章详情 - 点击跳转至文章详情
+    toDetailFn(id) {
+      this.$router.push({
+        path: `/detail?article_id=${id}`
+      })
+      console.log(id)
     }
   },
   components: { ArticleItem }

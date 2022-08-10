@@ -96,8 +96,8 @@ export default {
     logout() {
       this.$dialog
         .confirm({
-          title: '标题',
-          message: '弹窗内容'
+          title: '退出',
+          message: '是否退出登录?'
         })
         .then(() => {
           // 清空 token

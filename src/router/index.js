@@ -31,12 +31,19 @@ const router = new VueRouter({
       ]
     },
     {
+      // 搜索界面
       path: '/search',
       component: () => import('@/views/Search')
     },
     {
+      // 我的(用户)界面
       path: '/user',
       component: () => import('@/views/User')
+    },
+    {
+      // 文章详情
+      path: '/detail',
+      component: () => import('@/views/ArticleDetail')
     }
   ]
 })

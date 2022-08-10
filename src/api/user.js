@@ -57,10 +57,42 @@ export const uploadAvatorAPI = (file) => {
   })
 }
 
+/**
+ * 编辑用户信息
+ * @param {Object | String} data 需要编辑的信息
+ * @returns Promise
+ */
 export const editUserInfoAPI = (data) => {
   return request({
     url: '/v1_0/user/profile',
     method: 'PATCH',
     data: data
+  })
+}
+
+/**
+ * 关注用户
+ * @param {String} id 被关注用户的ID
+ * @returns Promise
+ */
+export const focusOnUserAPI = (id) => {
+  return request({
+    url: '/v1_0/user/followings',
+    method: 'POST',
+    data: {
+      target: id
+    }
+  })
+}
+
+/**
+ * 取消关注
+ * @param {String} id 被取消关注的用户的id
+ * @returns Promise
+ */
+export const cancelFocusUserAPI = (id) => {
+  return request({
+    url: `/v1_0/user/followings/${id}`,
+    method: 'DELETE'
   })
 }
