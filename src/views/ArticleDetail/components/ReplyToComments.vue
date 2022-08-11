@@ -3,9 +3,9 @@
   <div>
     <div class="nav-top">
       <van-nav-bar
-        :title="CommentList.length + '条回复'"
+        :title="total_count + '条回复'"
         left-arrow
-        @click-left="onClickLeft"
+        @click-left="$parent.$parent.isShowReply = false"
       />
     </div>
     <!-- 内容组件 -->
@@ -14,13 +14,23 @@
       <commentItem :article="article" :disabled="'disabled'"></commentItem>
       <van-cell title="全部回复" />
       <!-- 楼下评论 -->
-      <van-list>
+      <van-empty description="还没有评论哦~~" v-if="isShowEmpty" />
+
+      <van-list
+        v-model="loading"
+        :error.sync="error"
+        error-text="请求失败，点击重新加载"
+        @load="onLoad"
+        :finished="finished"
+        finished-text="没有更多了"
+        offset="10"
+      >
         <commentItem
           v-for="article in CommentList"
           :key="article.com_id"
           :article="article"
           :disabled="'disabled'"
-          @initComment="ss"
+          :id="article.com_id"
         ></commentItem>
       </van-list>
     </div>
@@ -69,45 +79,77 @@ export default {
       // 输入框绑定的内容
       commentValue: '',
       // 回复 -- 楼下评论
-      CommentList: []
+      CommentList: [],
+      // 回复量
+      total_count: 0,
+      error: false,
+      loading: false,
+      finished: false,
+      // 获取回复评论的配置信息
+      getComObj: {
+        type: 'c',
+        source: 0,
+        offset: '',
+        limit: 4
+      },
+      // 控制空状态是否展示
+      isShowEmpty: true
     }
   },
-  created() {
-    this.getSecondComment()
-  },
+  created() {},
   methods: {
-    onClickLeft() {
-      // 关闭弹窗
-      this.$parent.$parent.isShowReply = false
-    },
-    // 回复 -- 获取评论
-    async getSecondComment() {
-      const {
-        data: {
-          data: { results }
+    // 回复 -- 获取评论  动态加载
+    async onLoad() {
+      try {
+        // 1.处理配置信息
+        this.getComObj.source = this.article.com_id
+        // 2.发送请求
+        const {
+          data: { data }
+        } = await getCommentAPI(this.getComObj)
+        // 3.下一次获取评论的开始id
+        this.getComObj.offset = data.last_id
+        // 4.文章评论的回复量
+        this.total_count = data.total_count
+
+        // 5.保存回复列表
+        this.CommentList.push(...data.results)
+      } catch (error) {
+        this.$toast.fail('获取评论失败~')
+      } finally {
+        // 加载状态结束
+        this.loading = false
+
+        // 数据全部加载完成
+        if (this.CommentList.length >= this.total_count) {
+          this.finished = true
         }
-      } = await getCommentAPI({
-        type: 'c',
-        source: this.article.com_id,
-        offset: '',
-        limit: ''
-      })
-      this.CommentList = results
+      }
     },
     // 回复 -- 发布评论
     async sendComment() {
-      // console.log(this.$route.query.article_id)
-      await sendCommentAPI({
-        target: this.article.com_id,
-        content: this.commentValue,
-        art_id: this.$route.query.article_id
-      })
-      this.show = false
-      this.commentValue = ''
-      this.getSecondComment()
-    },
-    ss() {
-      this.getSecondComment()
+      try {
+        const {
+          data: { data }
+        } = await sendCommentAPI({
+          target: this.article.com_id,
+          content: this.commentValue,
+          art_id: this.$route.query.article_id
+        })
+        // 1.向评论列表中添加本次发布的数据
+        this.CommentList.unshift(data.new_obj)
+        // 2.清空输入框
+        this.commentValue = ''
+      } catch (error) {
+        this.$toast.fail('发布评论失败~')
+      } finally {
+        this.show = false
+      }
+    }
+  },
+  updated() {
+    if (this.CommentList.length !== 0) {
+      this.isShowEmpty = false
     }
   }
 }

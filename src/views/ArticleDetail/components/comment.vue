@@ -5,17 +5,16 @@
       v-model="loading"
       :finished="finished"
       :error.sync="error"
+      :immediate-check="false"
       error-text="请求失败，点击重新加载"
       finished-text="没有更多了"
       @load="onLoad"
-      offset="10"
-      :immediate-check="false"
     >
       <commentItem
         v-for="article in artCommentsList"
         :key="article.com_id"
         :article="article"
-        @initComment="getComments"
+        :id="article.com_id"
       ></commentItem>
     </van-list>
   </div>
@@ -39,51 +38,43 @@ export default {
         offset: '',
         limit: 2
       },
-      num: 0,
       // 获取文章评论总条数
       artTotal: 0,
       // 文章评论条数列表
-      artCommentsList: [],
-      // 每次动态加载最后一条评论的id
-      nextId: 0,
-      // 所有数据的最后一条数据的id
-      endId: 0
+      artCommentsList: []
     }
   },
-  created() {
-    this.getComments()
-  },
+  mounted() {},
   methods: {
-    // 文章 -- 获取评论
-    async getComments() {
+    // 文章 -- 获取评论 滑动加载
+    async onLoad() {
       this.getArtComment.source = this.$route.query.article_id
-      const {
-        data: { data }
-      } = await getCommentAPI(this.getArtComment)
-      console.log(data)
-      // 文章评论总条数
-      this.artTotal = data.total_count
-      // 渲染数据列表
-      this.artCommentsList.push(...data.results)
-
-      // 每次加载结果最后一条评论的id
-      this.nextId = data.last_id
-      this.getArtComment.offset = data.last_id
-      // 所有数据的最后一个id
-      // this.endId = data.end_id
-    },
-    // 滑动加载
-    onLoad() {
-      // this.getComments()
-      // setTimeout(() => {
-      //   // console.log(this.nextId)
-      //   // 加载状态结束
-      //   this.loading = false
-      //   // 数据全部加载完成
-      //   if (this.artCommentsList.length >= this.artTotal) {
-      //     this.finished = true
-      //   }
-      // }, 1000)
+      try {
+        const {
+          data: { data }
+        } = await getCommentAPI(this.getArtComment)
+        // 1.判断是否还有评论数据
+        if (data.end_id === 'NULL') {
+          this.finished = true
+        }
+        // 2.新获取的评论添加到数据列表
+        this.artCommentsList.push(...data.results)
+        // 3.对'单次加载最后一条评论的id'重新赋值
+        this.getArtComment.offset = data.last_id
+        // // 4.保存评论总条数
+        this.artTotal = data.total_count
+      } catch (error) {
+        // this.$toast.fail('获取评论失败,请刷新~')
+      } finally {
+        // 加载状态结束
+        this.loading = false
+        // 数据全部加载完成
+        if (this.artCommentsList.length >= this.artTotal) {
+          this.finished = true
+        } else {
+          this.finished = false
+        }
+      }
     }
   }
 }

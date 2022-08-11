@@ -16,18 +16,19 @@
             <van-icon
               name="good-job-o"
               @click="isLikeFn('赞')"
-              v-show="!this.article.is_liking"
-              >赞</van-icon
+              v-show="!article.is_liking"
+            >
+              {{ article.like_count }}</van-icon
             >
             <!-- 已点赞 -->
             <van-icon
               name="good-job"
               color="orange"
               @click="isLikeFn('.')"
-              v-show="this.article.is_liking"
+              v-show="article.is_liking"
             >
-              赞</van-icon
-            >
+              {{ article.like_count }}
+            </van-icon>
           </span>
         </div>
         <!-- 评论内容 -->
@@ -39,7 +40,9 @@
         <!-- 发布时间和回复 -->
         <div class="right-bottom">
           <span class="time">{{ article.pubdate }}</span>
-          <button @click="isShowReply = true" :disabled="disabled">回复</button>
+          <button @click="isShowReply = true" :disabled="disabled">
+            回复 {{ article.reply_count }}
+          </button>
           <!-- 回复的弹出层 -->
           <van-popup
             v-model="isShowReply"
@@ -66,33 +69,53 @@ export default {
       type: Object,
       default: () => ({})
     },
-    num: {
-      type: Number
-    },
     disabled: {
+      type: String
+    },
+    id: {
       type: String
     }
   },
-  created() {},
   data() {
     return {
       // 控制回复弹层出现
-      isShowReply: false
+      isShowReply: false,
+      // 是否点赞
+      isZan: ''
     }
   },
+  created() {},
   methods: {
     // 文章/回复 -- 点赞 / 取消点赞
     async isLikeFn(str) {
+      let newArr = this.$parent.$parent.artCommentsList
+      if (newArr === undefined) {
+        newArr = this.$parent.$parent.CommentList
+      }
       try {
         if (str === '赞') {
+          // 点赞
           await likingsAPI(this.article.com_id)
+          newArr.forEach((item) => {
+            console.log(item.com_id)
+            console.log(this.id)
+            if (item.com_id === this.id) {
+              item.is_liking = true
+              item.like_count++
+            }
+          })
         } else {
+          // 取消点赞
           await noLikeingAPI(this.article.com_id)
+          newArr.forEach((item) => {
+            if (item.com_id === this.id) {
+              item.is_liking = false
+              item.like_count--
+            }
+          })
         }
       } catch (error) {
         this.$toast.fail('获取评论失败,无法点赞或取消~')
-      } finally {
-        this.$emit('initComment')
       }
     }
   }

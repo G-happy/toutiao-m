@@ -14,5 +14,6 @@ module.exports = {
     'eol-last': 'off',
     'vue/multi-word-component-names': 'off',
     'space-before-function-paren': 'off'
+    // 'vue/no-mutating-props': 'off'
   }
 }

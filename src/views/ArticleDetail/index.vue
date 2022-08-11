@@ -61,7 +61,7 @@
         <!-- 评论区 -->
         <comment ref="commentRef"></comment>
       </div>
-      <!-- /加载完成-文章详情 -->
+      <!-- 加载完成-文章详情 -->
     </div>
 
     <!-- 底部区域 -->
@@ -247,12 +247,13 @@ export default {
     },
     // 文章 -- 发布评论
     async sendComment() {
-      await sendCommentAPI({
+      const {
+        data: { data }
+      } = await sendCommentAPI({
         target: this.art_id,
         content: this.commentValue
       })
-      // 调用子组件方法,重新获取评论区内容
-      this.$refs.commentRef.getComments()
+      this.$refs.commentRef.artCommentsList.unshift(data.new_obj)
       this.commentValue = ''
       // 关闭弹窗
       this.show = false
